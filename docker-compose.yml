@@ -1,5 +1,24 @@
 version: '3.7'
+networks:
+  monitoring:
+    driver: bridge
+
 services:
+
+  sql-server:
+      image: desenvolvedorio/nerdstore-sql-server:latest
+      container_name: observability-sql-server
+      build: 
+         context: ./Observability/src/sql
+         dockerfile: ./Dockerfile
+      environment:
+          SA_PASSWORD: "MeuDB@123"
+          ACCEPT_EULA: "Y" 
+      networks:
+        - monitoring 
+      ports:
+        - "1433:1433"    
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.1
     container_name: elasticsearch
@@ -34,6 +53,8 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml 
     ports:
       - "9090:9090"
+    networks:
+      - monitoring
 
   grafana:
     image: grafana/grafana:latest
@@ -46,9 +67,24 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - grafana-data:/var/lib/grafana
-    command:
-      - grafana-cli plugins install grafana-simple-json-datasource && grafana-server
+      - ./grafana_datasources.yaml:/etc/grafana/provisioning/datasources/all.yaml
+    networks:
+      - monitoring
+
+  observability-aspnetapp:
+    build:
+      context: ./Observability/src
+    container_name: observability
+    restart: always 
+    environment: 
+     - ASPNETCORE_URLS=http://+:8080;http://+8081
+    ports:
+      - 8080:8080
+      - 8081:8081
+    networks:
+      - monitoring
+    depends_on:
+      - sql-server
 
 volumes:
   es-data:

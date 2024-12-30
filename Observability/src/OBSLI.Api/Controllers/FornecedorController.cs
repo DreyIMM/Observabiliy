@@ -2,6 +2,7 @@
 using OBSI.Infra.Models;
 using OBSI.Infra.Repository;
 using OBSLI.Api.Shared;
+using Prometheus;
 
 namespace OBSLI.Api.Controllers
 {
@@ -9,6 +10,8 @@ namespace OBSLI.Api.Controllers
     {
         IFornecedor _fornecedorRepository;
         private readonly ILogger<FornecedorController> _logger;
+        private static readonly Counter totalRequest = Metrics.CreateCounter("custom_requests_fornecedor", "Contador de requisições personalizadas");
+
 
         public FornecedorController(IFornecedor fornecedorRepository, ILogger<FornecedorController> logger)
         {
@@ -31,6 +34,7 @@ namespace OBSLI.Api.Controllers
 
             var fornecedores = await _fornecedorRepository.ObterTodos();
 
+            totalRequest.Inc();
             return Ok(fornecedores);
 
         }

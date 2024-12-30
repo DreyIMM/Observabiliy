@@ -4,8 +4,9 @@ global:
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ['prometheus:9090']
 
-  - job_name: 'elasticsearch'
+  - job_name: 'csharp-app'
     static_configs:
-      - targets: ['elasticsearch:9200'] 
+      - targets: ['observability-aspnetapp:8080']
+    metrics_path: /metrics
