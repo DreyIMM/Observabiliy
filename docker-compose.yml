@@ -26,16 +26,31 @@ services:
     ports:
       - "5601:5601"
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - prometheus-data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml 
+    ports:
+      - "9090:9090"
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     depends_on:
-      - elasticsearch
+      - prometheus
     environment:
       - GF_SECURITY_ADMIN_USER=admin 
       - GF_SECURITY_ADMIN_PASSWORD=admin
     ports:
       - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    command:
+      - grafana-cli plugins install grafana-simple-json-datasource && grafana-server
 
 volumes:
   es-data:
+  prometheus-data:
+  grafana-data:
