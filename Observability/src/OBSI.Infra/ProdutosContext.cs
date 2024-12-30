@@ -5,20 +5,15 @@ namespace OBSI.Infra
 {
     public class ProdutosContext : DbContext
     {
-        public ProdutosContext(DbContextOptions<ProdutosContext> options) : base(options)
-        {
-        }
+        public ProdutosContext() : base() { }
+        public ProdutosContext(DbContextOptions<ProdutosContext> options) : base(options) { }
 
         public DbSet<Produto> Produtos { get; set; }
         public DbSet<Fornecedor> Fornecedors { get; set; }
 
-       protected override void OnModelCreating(ModelBuilder modelBuilder)
-       {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProdutosContext).Assembly);
 
-            base.OnModelCreating(modelBuilder);
-
-        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        => modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProdutosContext).Assembly);
 
     }
 }
