@@ -398,3 +398,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/Observability/src/OBSLI.Api/appsettings.Development.json
