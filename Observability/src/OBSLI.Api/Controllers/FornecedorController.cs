@@ -1,12 +1,57 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OBSI.Infra.Models;
+using OBSI.Infra.Repository;
+using OBSLI.Api.Shared;
 
 namespace OBSLI.Api.Controllers
 {
     public class FornecedorController : Controller
     {
-        public IActionResult Index()
+        IFornecedor _fornecedorRepository;
+        private readonly ILogger<FornecedorController> _logger;
+
+        public FornecedorController(IFornecedor fornecedorRepository, ILogger<FornecedorController> logger)
         {
-            return View();
+            _fornecedorRepository = fornecedorRepository;
+            _logger = logger;
+        }
+
+        [HttpPost("fonrecedor")]
+        public async Task<ActionResult<FornecedorDTO>> FornecedorAdd([FromBody] FornecedorDTO postDTO)
+        {
+            var fornecedor = postDTO.ToEntity();
+            await _fornecedorRepository.Adicionar(fornecedor);
+            return Ok(postDTO);
+        }
+
+        [HttpGet("fornecedor")]
+        public async Task<ActionResult<IEnumerable<Fornecedor>>> FornecedorList()
+        {
+            _logger.LogInformation("Solicitando dados do fornecedor");
+
+            var fornecedores = await _fornecedorRepository.ObterTodos();
+
+            return Ok(fornecedores);
+
+        }
+
+        [HttpGet("fornecedor/{id}")]
+        public async Task<ActionResult<Fornecedor>> FornecedorGet(Guid id)
+        {
+
+            _logger.LogInformation($"Solicitando dado do fornecedor {id}");
+
+            var fornecedor = await _fornecedorRepository.ObterPorId(id);
+
+            if (fornecedor == null)
+            {
+                _logger.LogWarning($"Fornecedor {id} não encontrado");
+                return NotFound();
+            }
+
+            _logger.LogInformation($"Fornecedor {id} encontrado");
+
+            return Ok(fornecedor);
         }
     }
 }
